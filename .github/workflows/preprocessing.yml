@@ -1,0 +1,44 @@
+name: Automated Data Preprocessing
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      # Kita install library yang dibutuhkan saja untuk preprocessing
+      run: |
+        python -m pip install --upgrade pip
+        pip install pandas scikit-learn
+
+    - name: Run Preprocessing Script
+      run: |
+        # Masuk ke folder Preprocessing dan jalankan script
+        cd Preprocessing
+        python automate_Karima-Ulya-Hermawan.py
+
+    - name: Commit and Push changes
+      run: |
+        # Konfigurasi bot GitHub untuk melakukan commit
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        
+        # Menambahkan dataset bersih yang baru di-generate
+        git add Preprocessing/Student_Depression_Dataset_preprocessing/dataset_clean.csv
+        
+        # Melakukan commit (jika ada perubahan) dan push ke repo
+        git commit -m "Auto-update processed dataset via GitHub Actions" || echo "No changes to commit"
+        git push
